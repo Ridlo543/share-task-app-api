@@ -1,10 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
+
+interface Task {
+  id: string;
+  name: string;
+  description: string;
+  deadline: string | null;
+}
+
+interface ClassData {
+  id: string;
+  name: string;
+  code: string;
+  tasks: Task[];
+}
 
 export default function ClassPage({ params }: { params: { code: string } }) {
-  const [classData, setClassData] = useState(null);
+  const [classData, setClassData] = useState<ClassData | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -14,11 +28,17 @@ export default function ClassPage({ params }: { params: { code: string } }) {
 
   useEffect(() => {
     async function fetchClass() {
-      const res = await fetch(`/api/classes/${params.code}`);
-      const data = await res.json();
-      setClassData(data);
-      setClassName(data.name);
-      setLoading(false);
+      try {
+        const res = await fetch(`/api/classes/${params.code}`);
+        if (!res.ok) throw new Error("Class not found");
+        const data = await res.json();
+        setClassData(data);
+        setClassName(data.name);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        setLoading(false);
+      }
     }
 
     fetchClass();
@@ -26,30 +46,32 @@ export default function ClassPage({ params }: { params: { code: string } }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting task:', { name, description, deadline });
-  
+
     const res = await fetch(`/api/classes/${params.code}/tasks`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ name, description, deadline }),
     });
-  
+
     if (res.ok) {
       const data = await res.json();
-      setClassData((prev) => ({
-        ...prev,
-        tasks: [...prev.tasks, data],
-      }));
-      setName('');
-      setDescription('');
-      setDeadline('');
+      setClassData((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: [...prev.tasks, data],
+            }
+          : prev
+      );
+      setName("");
+      setDescription("");
+      setDeadline("");
     } else {
-      alert('Failed to create task');
+      alert("Failed to create task");
     }
   };
-  
 
   const handleUpdateClass = async () => {
     const res = await fetch(`/api/classes/${params.code}`, {
@@ -65,7 +87,10 @@ export default function ClassPage({ params }: { params: { code: string } }) {
     }
   };
 
-  const handleUpdateTask = async (taskId, updatedTask) => {
+  const handleUpdateTask = async (
+    taskId: string,
+    updatedTask: Partial<Task>
+  ) => {
     const res = await fetch(`/api/classes/${params.code}/tasks/${taskId}`, {
       method: "PATCH",
       headers: {
@@ -76,25 +101,35 @@ export default function ClassPage({ params }: { params: { code: string } }) {
 
     if (res.ok) {
       const data = await res.json();
-      setClassData((prev) => ({
-        ...prev,
-        tasks: prev.tasks.map((task) => (task.id === taskId ? data : task)),
-      }));
+      setClassData((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: prev.tasks.map((task) =>
+                task.id === taskId ? data : task
+              ),
+            }
+          : prev
+      );
     } else {
       alert("Failed to update task");
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
+  const handleDeleteTask = async (taskId: string) => {
     const res = await fetch(`/api/classes/${params.code}/tasks/${taskId}`, {
       method: "DELETE",
     });
 
     if (res.ok) {
-      setClassData((prev) => ({
-        ...prev,
-        tasks: prev.tasks.filter((task) => task.id !== taskId),
-      }));
+      setClassData((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: prev.tasks.filter((task) => task.id !== taskId),
+            }
+          : prev
+      );
     } else {
       alert("Failed to delete task");
     }
@@ -162,7 +197,15 @@ export default function ClassPage({ params }: { params: { code: string } }) {
   );
 }
 
-function TaskRow({ task, onUpdate, onDelete }) {
+function TaskRow({
+  task,
+  onUpdate,
+  onDelete,
+}: {
+  task: Task;
+  onUpdate: (updatedTask: Partial<Task>) => void;
+  onDelete: () => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(task.name);
   const [description, setDescription] = useState(task.description);
