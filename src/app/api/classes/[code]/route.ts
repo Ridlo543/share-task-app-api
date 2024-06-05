@@ -18,6 +18,7 @@ export async function GET(
 
   return NextResponse.json(classData);
 }
+
 export async function PATCH(
   request: Request,
   { params }: { params: { code: string } }
@@ -36,3 +37,21 @@ export async function PATCH(
 
   return NextResponse.json(updatedClass);
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { code: string } }
+) {
+  const { code } = params;
+
+  const deletedClass = await prisma.class.delete({
+    where: { code },
+  });
+
+  if (!deletedClass) {
+    return NextResponse.json({ error: "Class not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ message: "Class deleted successfully" });
+}
+
