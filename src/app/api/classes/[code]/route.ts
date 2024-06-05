@@ -26,16 +26,20 @@ export async function PATCH(
   const { code } = params;
   const { name } = await request.json();
 
-  const updatedClass = await prisma.class.update({
-    where: { code },
-    data: { name },
-  });
+  try {
+    const updatedClass = await prisma.class.update({
+      where: { code },
+      data: { name },
+    });
 
-  if (!updatedClass) {
-    return NextResponse.json({ error: "Class not found" }, { status: 404 });
+    if (!updatedClass) {
+      return NextResponse.json({ error: "Class not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedClass, { status: 200 });
+  } catch (error: Error | any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json(updatedClass);
 }
 
 export async function DELETE(
