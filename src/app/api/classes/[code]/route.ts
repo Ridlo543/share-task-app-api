@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
+// untuk mendapatkan data class berdasarkan code
 export async function GET(
   request: Request,
   { params }: { params: { code: string } }

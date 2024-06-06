@@ -1,6 +1,34 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+// Untuk mendapatkan semua tasks dalam class tertentu
+export async function GET(
+  request: Request,
+  { params }: { params: { code: string } }
+) {
+  try {
+    const { code } = params;
+
+    const classData = await prisma.class.findUnique({
+      where: { code },
+      include: { tasks: true },
+    });
+
+    if (!classData) {
+      return NextResponse.json({ error: "Class not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(classData.tasks);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch tasks" },
+      { status: 500 }
+    );
+  }
+}
+
+// Untuk membuat task baru
 export async function POST(
   request: Request,
   { params }: { params: { code: string } }
