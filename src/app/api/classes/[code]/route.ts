@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(
@@ -20,7 +20,7 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { code: string } }
 ) {
   const { code } = params;
@@ -36,11 +36,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Class not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedClass, { status: 200 });
+    return NextResponse.json(updatedClass, { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error: Error | any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }
+
 
 export async function DELETE(
   request: Request,
@@ -58,4 +59,3 @@ export async function DELETE(
 
   return NextResponse.json({ message: "Class deleted successfully" });
 }
-
