@@ -36,12 +36,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Class not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedClass, { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return NextResponse.json({ class: updatedClass }, { status: 200 });
   } catch (error: Error | any) {
-    return NextResponse.json({ error: error.message }, { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
 
 export async function DELETE(
   request: Request,
