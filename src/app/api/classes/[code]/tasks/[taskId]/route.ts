@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+// Untuk mengupdate task
 export async function PATCH(
   request: Request,
   { params }: { params: { code: string; taskId: string } }
 ) {
   try {
     const { taskId } = params;
-    const { name, description, deadline } = await request.json();
+    const { name, description, deadline, done } = await request.json();
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
@@ -15,6 +16,7 @@ export async function PATCH(
         name,
         description,
         deadline: deadline ? new Date(deadline) : null,
+        done: done || false,
       },
     });
 
@@ -28,6 +30,7 @@ export async function PATCH(
   }
 }
 
+// Untuk menghapus task
 export async function DELETE(
   request: Request,
   { params }: { params: { code: string; taskId: string } }

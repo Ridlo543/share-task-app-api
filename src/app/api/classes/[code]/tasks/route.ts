@@ -35,7 +35,7 @@ export async function POST(
 ) {
   try {
     const { code } = params;
-    const { name, description, deadline } = await request.json();
+    const { name, description, deadline, done } = await request.json();
 
     const classData = await prisma.class.findUnique({
       where: { code },
@@ -50,6 +50,7 @@ export async function POST(
         name,
         description,
         deadline: deadline ? new Date(deadline) : null,
+        done: done || false,
         classId: classData.id,
       },
     });
