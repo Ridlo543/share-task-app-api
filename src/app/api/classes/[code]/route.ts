@@ -20,6 +20,7 @@ export async function GET(
   return NextResponse.json(classData);
 }
 
+// untuk mengubah data class berdasarkan code
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { code: string } }
@@ -43,6 +44,7 @@ export async function PATCH(
   }
 }
 
+// untuk menghapus data class berdasarkan code
 export async function DELETE(
   request: Request,
   { params }: { params: { code: string } }
