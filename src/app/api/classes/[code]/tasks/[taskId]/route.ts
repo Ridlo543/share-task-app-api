@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
   try {
     const { taskId } = params;
-    const { name, description, deadline, done } = await request.json();
+    const { name, description, deadline, isDone } = await request.json();
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
@@ -16,7 +16,7 @@ export async function PATCH(
         name,
         description,
         deadline: deadline ? new Date(deadline) : null,
-        done: done || false,
+        isDone: isDone || false,
       },
     });
 
